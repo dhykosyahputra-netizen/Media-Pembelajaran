@@ -1692,16 +1692,10 @@
       localStorage.setItem("arabiyahTheme", document.body.classList.contains("dark") ? "dark" : "light");
     }
 
-   function pronounce(text) {
-    if (!("speechSynthesis" in window)) {
-      alert("Browser ini belum mendukung fitur suara.");
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
+    function pronounce(text) {
+      if (!window.speechSynthesis) {
+        alert("Browser Anda belum mendukung fitur suara.");
+        return;
 
     const arabicVoice = voices.find(voice =>
       voice.lang && voice.lang.toLowerCase().startsWith("ar")
