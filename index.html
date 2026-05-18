@@ -1692,10 +1692,39 @@
       localStorage.setItem("arabiyahTheme", document.body.classList.contains("dark") ? "dark" : "light");
     }
 
-    function pronounce(text) {
-      if (!window.speechSynthesis) {
-        alert("Browser Anda belum mendukung fitur suara.");
-        return;
+   function pronounce(text) {
+    if (!("speechSynthesis" in window)) {
+      alert("Browser ini belum mendukung fitur suara.");
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+
+    const arabicVoice = voices.find(voice =>
+      voice.lang && voice.lang.toLowerCase().startsWith("ar")
+    );
+
+    if (arabicVoice) {
+      utterance.voice = arabicVoice;
+      utterance.lang = arabicVoice.lang;
+    } else {
+      utterance.lang = "ar-SA";
+      alert("Voice Arab belum tersedia di perangkat ini. Suara mungkin tidak keluar atau memakai suara default.");
+    }
+
+    utterance.rate = 0.78;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = function () {
+      window.speechSynthesis.getVoices();
       }
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "ar-SA";
