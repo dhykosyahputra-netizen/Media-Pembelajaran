@@ -1692,17 +1692,50 @@
       localStorage.setItem("arabiyahTheme", document.body.classList.contains("dark") ? "dark" : "light");
     }
 
-    function pronounce(text) {
-      if (!window.speechSynthesis) {
-        alert("Browser Anda belum mendukung fitur suara.");
-        return;
-      }
-      const utterance = new SpeechSynthesisUtterance(text);
+   function pronounce(text) {
+  if (!("speechSynthesis" in window)) {
+    alert("Browser ini belum mendukung fitur suara.");
+    return;
+  }
+
+  function speakNow() {
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+
+    const arabicVoice =
+      voices.find(voice => voice.lang && voice.lang.toLowerCase().startsWith("ar")) ||
+      voices.find(voice => voice.name && voice.name.toLowerCase().includes("arabic"));
+
+    if (arabicVoice) {
+      utterance.voice = arabicVoice;
+      utterance.lang = arabicVoice.lang;
+    } else {
       utterance.lang = "ar-SA";
-      utterance.rate = 0.78;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
     }
+
+    utterance.rate = 0.78;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  const voices = window.speechSynthesis.getVoices();
+
+  if (voices.length === 0) {
+    setTimeout(speakNow, 250);
+  } else {
+    speakNow();
+  }
+}
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = function () {
+    window.speechSynthesis.getVoices();
+  };
+}
 
     function renderStats() {
       const allVocab = lessons.flatMap(lesson => lesson.vocab);
